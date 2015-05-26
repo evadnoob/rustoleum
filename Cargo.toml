@@ -1,0 +1,17 @@
+[dependencies]
+postgres = "0.8"
+hyper = "0.5.0"
+docopt = "*"
+rustc-serialize = "*"
+log = "0.3.1"
+env_logger = "0.3.1"
+time = "0.1"
+libc = "0.1"
+
+[dependencies.zmq]
+git = "https://github.com/erickt/rust-zmq.git"
+
+[package]
+name = "buildr"
+version = "0.1.0"
+authors = [ "David Boon <david.boon@gmail.com" ]
