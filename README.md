@@ -51,6 +51,11 @@
 
 # Modules
 
+## Storage
+* storage is part configuration, part history, job definition, etc.
+  Storage is implemented as a git repository, local.  We use git as a
+  version control database.
+
 * job control / scheduler - command executor
 
 * logging - agents log, the logs are viewable from any agent or repl.
