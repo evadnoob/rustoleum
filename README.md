@@ -1,16 +1,18 @@
 # goals
 
-* develop a distributed build system, with agents doing the real work
+* develop a decentralized distributed build system, with agents doing the real work
 
-* learn rust
+* rust - be native, lightweight, and fast as shit.  Run as a daemon, use tried and true unix apis.
 
 * focus on scripting as the configuration of a job, bash, python, ruby etc.
 
-* Low administrative overhead, focus on workflows through the cli, don't get caught.
+* Low administrative overhead, focus on workflows through the cli, don't get caughtup with fancy user interfaces(they're all fads and they look terrible in eventually).
+
+* Allow anyone to access the rest interfaces to develop any user-interface they want.
 
 * job controll mainly through command line and chat/bot interfaces
 
-* centralized log rollup
+* decentralized logging - event system communicates log, after logging locally to a file, fire event for log messages(buffer and compress these logs).
 
 * fault tolerant leader election(paxos/raft?)
 
@@ -18,23 +20,29 @@
 
 * agents run in docker containers, as well as the leader
 
-* leader and agent are just modules, an agent can become the leader when the leader is lost(paxos)
+* leader and agent are just modules, an agent can become the leader when the leader is lost(paxos, raft?)
 
-* be better than Jenkins at everything.
+* be better than Jenkins(and buildbot, etc.) at everything.
 
 * be a little like quartz, only better at everything also.
 
+* run in Docker ( or not ).
+
 # Features
 
-* master/slave model
+* masterless. All agents are capabable of being a leader. 
 
 * templates for builds deploys based on common scenarios sbt, maven, cargo, npm etc.
 
+* event oriented - use an event bus to communicate build events, failures, starts, re-starts, custom messages, lifecycle events.
+
 * prioritize mvn, npm, etc. as first couple of builders
 
-* notify committer direclty based on preference of their build failures through chat, allow interaction with build job through chat.
+* Chat
+** notify committer direclty based on preference of their build failures through chat
+** allow interaction with build job through chat.
 
-* labels on "nodes", jobs can provide labels and nodes that expose those labels can be used to perform tasks that match labels.
+* labels on "agents", jobs can provide labels and agents consume jobs by matching labels labels.
 
 * interactive build repl with colorized display
 
@@ -42,8 +50,10 @@
 
 * job control / scheduler - command executor
 
-* logging -
+* logging - agents log, the logs are viewable from any agent or repl.
 
-* build agent -
+* build agent - process build and deployment jobs, log locally and broadcast log messages.
+
+* repl - an interactive command line interface for dealing with the agents/jobs/schedules etc. 
 
 * leadership mgmt/discovery - etcd/zookeeper/paxos/raft like
