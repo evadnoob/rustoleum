@@ -33,6 +33,9 @@
 * masterless. All agents are capabable of being a leader. 
 
 * templates for builds deploys based on common scenarios sbt, maven, cargo, npm etc.
+** do build in docker container
+** run build in ec2 instance or other cloud provider
+
 
 * event oriented - use an event bus to communicate build events, failures, starts, re-starts, custom messages, lifecycle events.
 
