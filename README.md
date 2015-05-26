@@ -60,3 +60,11 @@
 * repl - an interactive command line interface for dealing with the agents/jobs/schedules etc. 
 
 * leadership mgmt/discovery - etcd/zookeeper/paxos/raft like
+
+
+# Contributing
+Rustoleum is just getting started.  The name is really just a placeholder, if it sticks fine, but I'm sure there must be a better name.
+
+If you're interested in contributing, jump on irc, and fork the repo.  
+
+```#rustoleum on irc.freenode.net```
