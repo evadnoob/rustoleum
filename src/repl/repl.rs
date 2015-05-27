@@ -1,9 +1,10 @@
+extern crate readline;
 
 use std::io;
 use std::io::prelude::*;
 use job::jobs;
 use agent::client;
-use repl::readline;
+
 
 pub fn start() {
     //let mut stdout = io::stdout(); 
@@ -14,10 +15,11 @@ pub fn start() {
         
         //let input = &mut String::new();
         //match io::stdin().read_line(input) {
-        match readline::readline(">") {
+        match readline::readline("> ") {
             Ok(input) => {
                 let input = input.replace("\n", "");
                 if input.len() > 0 {
+                    readline::add_history(input.as_ref());
                     println!("{:?}", input);
 
                     if "jobs" == input {
