@@ -1,8 +1,6 @@
 
-// use libc::c_char;
-// use libc::c_str;
 use std::ffi::{CStr, CString};
-use std::str;
+use std::{error, str};
 use std::io::prelude::*;
 
 mod ext_readline {
@@ -22,17 +20,18 @@ pub fn add_history(line: &str) {
 }
 
 
-pub fn readline(prompt: &str) -> Option<String> {
+pub fn readline(prompt: &str) -> Result<String, String> {
     let cprmt = CString::new(prompt).unwrap();
     unsafe {
         let ptr = ext_readline::readline(cprmt.as_ptr());
         if ptr.is_null() {  // user pressed Ctrl-D
-            None
+            return Err("null pointer".to_string());
         } else {
             let ret = str::from_utf8(CStr::from_ptr(ptr).to_bytes());
             let ret = ret.ok().map(|s| s.to_string());
             ext_readline::libc::free(ptr as *mut _);
-            return ret;
+            
+            return Ok(ret.unwrap());
         }
     }
 }

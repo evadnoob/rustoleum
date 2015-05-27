@@ -1,2 +1,2 @@
 pub mod repl;
-mod readline;
+pub mod readline;

@@ -46,8 +46,8 @@ fn main() {
         .and_then(|d| d.parse())
         .unwrap_or_else(|e| e.exit());
 
-    info!("args: {:?}", args); 
-    info!("arg vector: {:?}", args.get_vec("<args>"));
+    trace!("args: {:?}", args); 
+    trace!("arg vector: {:?}", args.get_vec("<args>"));
 
     if args.get_bool("agent")  { 
         agent::agent::do_server();

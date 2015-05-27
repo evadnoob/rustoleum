@@ -3,20 +3,22 @@ use std::io;
 use std::io::prelude::*;
 use job::jobs;
 use agent::client;
+use repl::readline;
 
 pub fn start() {
-    let mut stdout = io::stdout();
+    //let mut stdout = io::stdout(); 
     loop {
 
-        write!(&mut stdout, "builr> ");
-        stdout.flush();
+        //write!(&mut stdout, "builr> ");
+        //stdout.flush();
         
-        let input = &mut String::new();
-        match io::stdin().read_line(input) {
-            Ok(x)=> {
+        //let input = &mut String::new();
+        //match io::stdin().read_line(input) {
+        match readline::readline(">") {
+            Ok(input) => {
                 let input = input.replace("\n", "");
                 if input.len() > 0 {
-                    println!("{:?} {:?}", input, x);
+                    println!("{:?}", input);
 
                     if "jobs" == input {
                         jobs::list();
