@@ -73,3 +73,10 @@ Rustoleum is just getting started.  The name is really just a placeholder, if it
 If you're interested in contributing, jump on irc, and fork the repo.  
 
 ```#rustoleum on irc.freenode.net```
+
+# Building from source
+
+* clone the repo
+* ```brew install zeromq```
+* ```cargo build```
+* ```target/debug/buildr repl``` or ```target/debug/buildr agent```
