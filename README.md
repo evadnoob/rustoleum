@@ -10,7 +10,7 @@
 
 * Allow anyone to access the rest interfaces to develop any user-interface they want.
 
-* job controll mainly through command line and chat/bot interfaces
+* job control mainly through command line and chat/bot interfaces
 
 * decentralized logging - event system communicates log, after logging locally to a file, fire event for log messages(buffer and compress these logs).
 
@@ -30,7 +30,7 @@
 
 # Features
 
-* masterless. All agents are capabable of being a leader. 
+* masterless. All agents are capable of being a leader. 
 
 * templates for builds deploys based on common scenarios sbt, maven, cargo, npm etc.
 ** do build in docker container
@@ -42,7 +42,7 @@
 * prioritize mvn, npm, etc. as first couple of builders
 
 * Chat
-** notify committer direclty based on preference of their build failures through chat
+** notify committer directly based on preference of their build failures through chat
 ** allow interaction with build job through chat.
 
 * labels on "agents", jobs can provide labels and agents consume jobs by matching labels labels.
@@ -50,6 +50,11 @@
 * interactive build repl with colorized display
 
 # Modules
+
+## Storage
+* storage is part configuration, part history, job definition, etc.
+  Storage is implemented as a git repository, local.  We use git as a
+  version control database.
 
 * job control / scheduler - command executor
 
@@ -61,6 +66,11 @@
 
 * leadership mgmt/discovery - etcd/zookeeper/paxos/raft like
 
+# Development
+
+    $ cargo build
+    $ ./target/debug/buildr agent
+    $ ./target/debug/buildr repl
 
 # Contributing
 Rustoleum is just getting started.  The name is really just a placeholder, if it sticks fine, but I'm sure there must be a better name.
@@ -68,3 +78,10 @@ Rustoleum is just getting started.  The name is really just a placeholder, if it
 If you're interested in contributing, jump on irc, and fork the repo.  
 
 ```#rustoleum on irc.freenode.net```
+
+# Building from source
+
+* clone the repo
+* ```brew install zeromq```
+* ```cargo build```
+* ```target/debug/buildr repl``` or ```target/debug/buildr agent```

@@ -8,6 +8,9 @@ env_logger = "0.3.1"
 time = "0.1"
 libc = "0.1"
 
+[dependencies.readline]
+git = "https://github.com/evadnoob/rust-readline.git"
+
 [dependencies.zmq]
 git = "https://github.com/erickt/rust-zmq.git"
 
