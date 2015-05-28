@@ -1,6 +1,7 @@
 
 use std::io;
 use std::io::prelude::*;
+use std::process;
 use job::jobs;
 use agent::client;
 
@@ -23,6 +24,9 @@ pub fn start() {
                     }
                     else if "ping" == input {
                         client::ping(4);
+                    }
+                    else if "exit" == input || "quit" == input {
+                        process::exit(0);
                     }
                 }
             },
