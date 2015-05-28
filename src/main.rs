@@ -24,35 +24,34 @@ Usage:
   buildr [options] repl
 
 Options:
-  --env=ARG     Set the environment where ENV is one of dev, qa, or prod
-  -h --help     Show this screen.
-  --version     Show version.
+  --env=ARG       Set the environment where ENV is one of dev, qa, or prod
 
 Some common buildr commands are:
-    event <name>     Various commands related to events
+    agent init     Various commands related to agent
     help 
 See 'buildr help <command>' for more information on a specific command.
 ";
 
 fn main() {
     
+    let args = Docopt::new(USAGE)
+        .and_then(|d| d.help(true).version(Some("0.0.1".to_string())).parse())
+        .unwrap_or_else(|e| e.exit());
+
     match logging::init() {
         Err(e) => println!("Unable to initialize logging system: {}", e),
         _ => {}
     }
     
-    
-    let args = Docopt::new(USAGE)
-        .and_then(|d| d.parse())
-        .unwrap_or_else(|e| e.exit());
-
     trace!("args: {:?}", args); 
     trace!("arg vector: {:?}", args.get_vec("<args>"));
-
+    
     if args.get_bool("agent")  { 
-        agent::agent::do_server();
+        agent::agent::start();
     }
     else if args.get_bool("repl") {
         repl::repl::start();
     }
+
+    
 }

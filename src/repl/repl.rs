@@ -1,20 +1,10 @@
 extern crate readline;
 
-use std::io;
-use std::io::prelude::*;
 use job::jobs;
 use agent::client;
 
-
 pub fn start() {
-    //let mut stdout = io::stdout(); 
     loop {
-
-        //write!(&mut stdout, "builr> ");
-        //stdout.flush();
-        
-        //let input = &mut String::new();
-        //match io::stdin().read_line(input) {
         match readline::readline("> ") {
             Ok(input) => {
                 let input = input.replace("\n", "");
