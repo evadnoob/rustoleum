@@ -1,3 +1,34 @@
+# buildr demo
+
+In 1st terminal
+
+    $ ./target/debug/buildr agent
+    2015-05-28 09:25:53 INFO [buildr::agent::cluster:src/agent/cluster.rs:3] - joining cluster
+
+In 2nd terminal
+
+    $ ./target/debug/buildr repl
+	> ping
+	"ping"
+	2015-05-28 09:26:16 INFO [buildr::agent::cluster:src/agent/cluster.rs:3] - joining cluster
+	2015-05-28 09:26:16 INFO [buildr::agent::client:src/agent/client.rs:19] - sending ping 0
+	2015-05-28 09:26:16 INFO [buildr::agent::client:src/agent/client.rs:23] - Received Yes she does: 0
+	2015-05-28 09:26:17 INFO [buildr::agent::client:src/agent/client.rs:19] - sending ping 1
+	2015-05-28 09:26:17 INFO [buildr::agent::client:src/agent/client.rs:23] - Received Yes she does: 1
+	2015-05-28 09:26:18 INFO [buildr::agent::client:src/agent/client.rs:19] - sending ping 2
+	2015-05-28 09:26:18 INFO [buildr::agent::client:src/agent/client.rs:23] - Received Yes she does: 2
+	2015-05-28 09:26:19 INFO [buildr::agent::client:src/agent/client.rs:19] - sending ping 3
+	2015-05-28 09:26:19 INFO [buildr::agent::client:src/agent/client.rs:23] - Received Yes she does: 3
+	> quit
+
+Meanwhile, back at the ranch
+
+    2015-05-28 09:25:53 INFO [buildr::agent::cluster:src/agent/cluster.rs:3] - joining cluster
+	2015-05-28 09:26:16 INFO [buildr::agent::agent:src/agent/agent.rs:18] - Received Zoe Rocks!!
+	2015-05-28 09:26:17 INFO [buildr::agent::agent:src/agent/agent.rs:18] - Received Zoe Rocks!!
+	2015-05-28 09:26:18 INFO [buildr::agent::agent:src/agent/agent.rs:18] - Received Zoe Rocks!!
+	2015-05-28 09:26:19 INFO [buildr::agent::agent:src/agent/agent.rs:18] - Received Zoe Rocks!!
+
 # goals
 
 * develop a decentralized distributed build system, with agents doing the real work
