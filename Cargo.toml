@@ -1,3 +1,22 @@
+
+
+
+[package]
+name = "buildr"
+version = "0.1.0"
+authors = [ "David Boon <david.boon@gmail.com" ]
+
+
+description = "A distributed scheduling and system"
+readme = "README.md"
+keywords = ["continuous delivery", "build"]
+
+homepage = "https://github.com/evadnoob/rustoleum"
+repository = "https://github.com/evadnoob/rustoleum"
+documentation = "https://evadnoob.github.io/rustoleum/"
+
+license = "MIT"
+
 [dependencies]
 postgres = "0.8"
 hyper = "0.5.0"
@@ -14,7 +33,6 @@ git = "https://github.com/evadnoob/rust-readline.git"
 [dependencies.zmq]
 git = "https://github.com/erickt/rust-zmq.git"
 
-[package]
-name = "buildr"
-version = "0.1.0"
-authors = [ "David Boon <david.boon@gmail.com" ]
+
+
+

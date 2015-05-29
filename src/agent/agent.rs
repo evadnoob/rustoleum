@@ -1,10 +1,12 @@
 extern crate zmq;
 
 use agent::cluster;
-
+use storage::storage;
+    
 pub fn start() {
     
     cluster::join();
+    storage::bootstrap();
     
     let mut context = zmq::Context::new();
 

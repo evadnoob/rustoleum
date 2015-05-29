@@ -9,6 +9,7 @@ extern crate env_logger;
 extern crate libc;
 
 mod agent;
+mod storage;
 mod x;
 mod repl;
 mod job;
