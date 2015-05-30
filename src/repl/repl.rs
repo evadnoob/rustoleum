@@ -19,6 +19,9 @@ pub fn start() {
                     else if "ping" == input {
                         client::ping(4);
                     }
+                    else if "storage" == input {
+                        
+                    }
                     else if "exit" == input || "quit" == input {
                         process::exit(0);
                     }

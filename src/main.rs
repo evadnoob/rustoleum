@@ -1,4 +1,3 @@
-extern crate postgres;
 extern crate hyper;
 extern crate docopt;
 extern crate zmq;
@@ -23,12 +22,15 @@ Publish cli.
 Usage:
   buildr [options] agent [<args>...]
   buildr [options] repl
+  buildr [options] storage (init | show)
 
-Options:
-  --env=ARG       Set the environment where ENV is one of dev, qa, or prod
+Options: -v, --verbose 
+         -h, --help
+
 
 Some common buildr commands are:
-    agent init     Various commands related to agent
+    agent (describe | help)     Various commands related to agent
+    storage (init | help)
     help 
 See 'buildr help <command>' for more information on a specific command.
 ";
