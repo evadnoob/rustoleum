@@ -1,25 +1,25 @@
 
-extern crate serialize;
 
 use std::env;
 use std::collections::BTreeMap;
 // use self::serialize::json::ToJson;
 // use self::serialize::json::Json;
 // use self::serialize::json;
+use rustc_serialize::json;
 
-#[derive(Debug)]
+#[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
 enum RepositoryType {
     Github,
 }
 
-#[derive(Decodable, Encodable)]
+#[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
 pub struct Repository {
     name: String,
     url: Option<String>,
     repo_type: RepositoryType
 }
 
-#[derive(Debug, Decodable, Encodable)]
+#[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
 pub struct Job {
     name: Option<String>,
     description: Option<String>,
@@ -35,17 +35,6 @@ pub struct Storage {
 }
 
 
-// impl ToJson for Job {
-//     fn to_json(&self) -> Json {
-//         let mut d = BTreeMap::new();
-//         d.insert("name".to_string(), self.name.to_json());
-//         d.insert("description".to_string(), self.description.to_json());
-//         d.insert("repository".to_string(), self.repository.unwrap().to_json());
-//         Json::Object(d)
-//     }
-// }
-
-
 impl Storage {
 
     pub fn new() -> Storage {
@@ -59,6 +48,7 @@ impl Storage {
     
     pub fn bootstrap(&self) {
         info!("bootstrap done");        
+       
     }
 
     pub fn path(&self) -> String  {
@@ -71,6 +61,8 @@ impl Storage {
     }
     
     pub fn save(&self, job: Job) {
+
+        info!("saving...{:?}", json::encode(&job));
         self.backend.add(job)
     }
 
@@ -81,6 +73,7 @@ pub fn bootstrap() {
     let storage = Storage::new();
     storage.bootstrap();
     info!("storage path is {:?}, exists? {}", storage.path(), storage.exists());
+    storage.save(Job{name: Some("test".to_string()), description: Some("dsc".to_string()), repository: None});
 }
 
 
@@ -93,6 +86,6 @@ impl Backend {
     }
 
     pub fn add(&self, job: Job) {
-        info!("adding...{}", job.to_json());
+        info!("adding...{:?}", json::encode(&job));
     }
 }

@@ -21,8 +21,8 @@ pub fn start() {
                         client::ping(4);
                     }
                     else if "storage" == input {
-                        let storage = storage::Storage::new();
-                        storage.bootstrap();
+                        //let storage = storage::Storage::new();
+                        storage::bootstrap();
                         
                     }
                     else if "exit" == input || "quit" == input {

@@ -1,6 +1,7 @@
 extern crate hyper;
 extern crate docopt;
 extern crate zmq;
+extern crate rustc_serialize;
 
 #[macro_use]
 extern crate log;
