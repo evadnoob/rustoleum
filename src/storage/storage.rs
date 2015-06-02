@@ -2,9 +2,6 @@
 
 use std::env;
 use std::collections::BTreeMap;
-// use self::serialize::json::ToJson;
-// use self::serialize::json::Json;
-// use self::serialize::json;
 use rustc_serialize::json;
 
 #[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
@@ -61,8 +58,6 @@ impl Storage {
     }
     
     pub fn save(&self, job: Job) {
-
-        info!("saving...{:?}", json::encode(&job));
         self.backend.add(job)
     }
 
@@ -73,7 +68,12 @@ pub fn bootstrap() {
     let storage = Storage::new();
     storage.bootstrap();
     info!("storage path is {:?}, exists? {}", storage.path(), storage.exists());
-    storage.save(Job{name: Some("test".to_string()), description: Some("dsc".to_string()), repository: None});
+    storage.save(Job{
+        name: Some("test".to_string()),
+        description: Some("dsc".to_string()),
+        repository: Some(Repository{name: "test".to_string(),
+                        url: Some("http://github.com/evadnoob".to_string()),
+                        repo_type: RepositoryType::Github})});
 }
 
 
@@ -86,6 +86,7 @@ impl Backend {
     }
 
     pub fn add(&self, job: Job) {
-        info!("adding...{:?}", json::encode(&job));
+        
+        info!("adding...{}", json::as_pretty_json(&job));
     }
 }
