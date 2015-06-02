@@ -3,6 +3,8 @@
 use std::env;
 use std::collections::BTreeMap;
 use rustc_serialize::json;
+use std::fs;
+use std::path::PathBuf;
 
 #[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
 enum RepositoryType {
@@ -27,30 +29,39 @@ pub struct Job {
 #[derive(Debug)]
 pub struct Storage {
     dirname: Option<String>,
-    path: Option<String>,
+    path: Option<PathBuf>,
     backend: Backend
 }
-
 
 impl Storage {
 
     pub fn new() -> Storage {
         let path = match env::current_exe() {
-            Ok(exe_path) => exe_path.display().to_string(),
-            Err(e) => format!("failed to get current exe path: {}", e).to_string(),
+            Ok(exe_path) => Some(exe_path),
+            Err(e) => None,
         };
-        info!("{}", path);
-        Storage {path: Some(path), dirname: None, backend: Backend::new()} 
+        let p = env::current_dir().unwrap();
+
+        info!("{:?}", path);
+        info!("{}", p.display());
+
+        Storage {path: path, dirname: None, backend: Backend::new()} 
     }
     
     pub fn bootstrap(&self) {
         info!("bootstrap done");        
-       
     }
 
-    pub fn path(&self) -> String  {
+    pub fn path(&self) -> PathBuf  {
+
+        let mut path = self.path.clone().unwrap();
+        path.push(".data");
+        info!("{:?}", path);
+        
         //return format!("{:?}/{:?}", self.path.("."), self.dirname.or_else("data"));
-        return format!("{:?}/{:?}", self.path.clone().unwrap_or("".to_string()), self.dirname.clone().unwrap_or(".data".to_string()));
+        //return format!("{:?}/{:?}", self.path, self.dirname.clone().unwrap_or(".data".to_string()));
+
+        return path;
     }
     
     pub fn exists(&self) -> bool {
@@ -72,8 +83,12 @@ pub fn bootstrap() {
         name: Some("test".to_string()),
         description: Some("dsc".to_string()),
         repository: Some(Repository{name: "test".to_string(),
-                        url: Some("http://github.com/evadnoob".to_string()),
-                        repo_type: RepositoryType::Github})});
+                                    url: Some("http://github.com/evadnoob".to_string()),
+                                    repo_type: RepositoryType::Github})});
+
+    //try!(fs::create_dir_all("/some/dir"));
+
+    
 }
 
 
