@@ -1,11 +1,10 @@
-
-
 use std::env;
-use std::collections::BTreeMap;
 use rustc_serialize::json;
 use std::fs;
 use std::path::PathBuf;
 
+
+    
 #[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
 enum RepositoryType {
     Github,
@@ -29,23 +28,24 @@ pub struct Job {
 #[derive(Debug)]
 pub struct Storage {
     dirname: Option<String>,
-    path: Option<PathBuf>,
+    path: PathBuf,
     backend: Backend
 }
 
 impl Storage {
 
     pub fn new() -> Storage {
-        let path = match env::current_exe() {
-            Ok(exe_path) => Some(exe_path),
-            Err(e) => None,
-        };
-        let p = env::current_dir().unwrap();
+        // let path = match env::current_exe() {
+        //     Ok(exe_path) => Some(exe_path),
+        //     Err(e) => None,
+        // };
+        // let p = env::current_dir().unwrap();
+        let path = env::current_exe().ok().unwrap();
 
         info!("{:?}", path);
-        info!("{}", p.display());
+        info!("{}", path.display());
 
-        Storage {path: path, dirname: None, backend: Backend::new()} 
+        Storage {path: path, dirname: None, backend: Backend::new()}
     }
     
     pub fn bootstrap(&self) {
@@ -54,24 +54,20 @@ impl Storage {
 
     pub fn path(&self) -> PathBuf  {
 
-        let mut path = self.path.clone().unwrap();
+        let mut path = self.path.clone();
         path.push(".data");
         info!("{:?}", path);
         
-        //return format!("{:?}/{:?}", self.path.("."), self.dirname.or_else("data"));
-        //return format!("{:?}/{:?}", self.path, self.dirname.clone().unwrap_or(".data".to_string()));
-
         return path;
     }
-    
+
     pub fn exists(&self) -> bool {
-        return false;
+        return fs::metadata(self.path()).is_ok();
     }
     
     pub fn save(&self, job: Job) {
         self.backend.add(job)
     }
-
 }
 
 
@@ -86,7 +82,12 @@ pub fn bootstrap() {
                                     url: Some("http://github.com/evadnoob".to_string()),
                                     repo_type: RepositoryType::Github})});
 
-    //try!(fs::create_dir_all("/some/dir"));
+    if !storage.exists() {
+        info!("creating storage directory {:?}", storage.path());
+        let x = fs::create_dir_all(storage.path().as_path());
+        info!("create file result {:?}", x);
+        
+    }
 
     
 }
