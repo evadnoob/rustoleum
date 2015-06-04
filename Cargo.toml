@@ -25,6 +25,7 @@ log = "0.3.1"
 env_logger = "0.3.1"
 time = "0.1"
 libc = "0.1"
+git2 = "0.2"
 
 [dependencies.readline]
 git = "https://github.com/evadnoob/rust-readline.git"

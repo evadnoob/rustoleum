@@ -1,17 +1,19 @@
+
 use std::env;
 use rustc_serialize::json;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
+use git2::Repository;
+use std::fs::File;
+use std::io::prelude::*;
 
-
-    
 #[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
 enum RepositoryType {
     Github,
 }
 
 #[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
-pub struct Repository {
+pub struct RepositoryDescriptor {
     name: String,
     url: Option<String>,
     repo_type: RepositoryType
@@ -21,34 +23,33 @@ pub struct Repository {
 pub struct Job {
     name: Option<String>,
     description: Option<String>,
-    repository: Option<Repository>
+    repository: Option<RepositoryDescriptor>
 }
 
 
 #[derive(Debug)]
 pub struct Storage {
-    dirname: Option<String>,
+    git_local_repo_path: PathBuf,
     path: PathBuf,
-    backend: Backend
+    
 }
 
 impl Storage {
 
     pub fn new() -> Storage {
-        // let path = match env::current_exe() {
-        //     Ok(exe_path) => Some(exe_path),
-        //     Err(e) => None,
-        // };
-        // let p = env::current_dir().unwrap();
-        let path = env::current_exe().ok().unwrap();
+        let path = env::current_exe().ok().unwrap().parent().unwrap().to_path_buf();
 
-        info!("{:?}", path);
         info!("{}", path.display());
 
-        Storage {path: path, dirname: None, backend: Backend::new()}
+        let mut git_local_repo_path = path.clone();
+        git_local_repo_path.push(".data/");
+
+        Storage {path: path, git_local_repo_path: git_local_repo_path}  
     }
     
     pub fn bootstrap(&self) {
+        self.init();
+
         info!("bootstrap done");        
     }
 
@@ -56,54 +57,72 @@ impl Storage {
 
         let mut path = self.path.clone();
         path.push(".data");
-        info!("{:?}", path);
-        
         return path;
     }
 
     pub fn exists(&self) -> bool {
-        info!("does file exist ? {:?}", self.path());
         return fs::metadata(self.path()).is_ok();
     }
+
+
+    pub fn init(&self) {
+        info!("does file exist ? {:?}", self.path);
+        //let mut git_local_repo_path = self.path.clone();
+        //git_local_repo_path.push(".data/");
+        if !self.exists() {
+            info!("creating storage directory {:?}", self.git_local_repo_path);
+            let x = fs::create_dir_all(self.git_local_repo_path.as_path());
+            info!("create file result {:?}", x);
+            
+            match Repository::init(self.git_local_repo_path.as_path()) {
+                Ok(repo) => info!("repo initialized successfully" ),
+                Err(e) => panic!("failed to init: {}", e),
+            };
+        }
+        else {
+            info!("skipped repo initialization, directory already exists.");
+        }
+
+        let repo = match Repository::open(self.git_local_repo_path.as_path()) {
+            Ok(repo) => repo,
+            Err(e) => panic!("failed to init: {}", e),
+        };
+        info!("opened repo {:?}", repo.path());
+        
+        let statuses = repo.statuses(None);
+        info!("statuses {}", statuses.unwrap().len());
+    }
+    
     
     pub fn save(&self, job: Job) {
-        self.backend.add(job)
+        let job_as_json = json::as_pretty_json(&job);
+        let mut job_as_json_path = PathBuf::from(self.git_local_repo_path.clone());
+        job_as_json_path.push("job1.json");
+        info!("adding...{}", job_as_json);
+        info!("job_as_json_path {}", job_as_json_path.display());
+
+        match File::create(job_as_json_path.as_path()) {
+            Ok(ref mut file) => {
+                info!("created file, ready for writing");
+    //            file.write_all(job_as_json);
+                write!(file, "{}", job_as_json);
+                
+            },
+            Err(e) => panic!("unable to create file for writing {}", e)
+        };
+        
     }
 }
-
 
 pub fn bootstrap() {
     let storage = Storage::new();
+    // let repository = Some(RepositoryDescriptor{name: "test".to_string(),
+    //                                 url: Some("http://github.com/evadnoob".to_string()),
+    //                                            repo_type: RepositoryType::Github});
+    
     storage.bootstrap();
-    info!("storage path is {:?}, exists? {}", storage.path(), storage.exists());
     storage.save(Job{
         name: Some("test".to_string()),
         description: Some("dsc".to_string()),
-        repository: Some(Repository{name: "test".to_string(),
-                                    url: Some("http://github.com/evadnoob".to_string()),
-                                    repo_type: RepositoryType::Github})});
-
-    if !storage.exists() {
-        info!("creating storage directory {:?}", storage.path());
-        let x = fs::create_dir_all(storage.path().as_path());
-        info!("create file result {:?}", x);
-        
-    }
-
-    
-}
-
-
-#[derive(Debug)]
-pub struct Backend;
-
-impl Backend {
-    pub fn new() -> Backend {
-        Backend
-    }
-
-    pub fn add(&self, job: Job) {
-        
-        info!("adding...{}", json::as_pretty_json(&job));
-    }
+        repository: None });
 }
