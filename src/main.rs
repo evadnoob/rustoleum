@@ -13,6 +13,7 @@ mod storage;
 mod x;
 mod repl;
 mod job;
+mod jq;
 
 use x::logging;
 use docopt::Docopt;

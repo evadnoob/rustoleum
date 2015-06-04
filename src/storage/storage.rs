@@ -62,6 +62,7 @@ impl Storage {
     }
 
     pub fn exists(&self) -> bool {
+        info!("does file exist ? {:?}", self.path());
         return fs::metadata(self.path()).is_ok();
     }
     
