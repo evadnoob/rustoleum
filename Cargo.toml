@@ -19,13 +19,16 @@ license = "MIT"
 
 [dependencies]
 hyper = "0.5.0"
-docopt = "*"
+docopt = "0.6.67"
 rustc-serialize = "*"
 log = "0.3.1"
 env_logger = "0.3.1"
 time = "0.1"
 libc = "0.1"
 git2 = "0.2"
+nanomsg = "^0.3.4"
+nix = "*"
+glob = "*"
 
 [dependencies.readline]
 git = "https://github.com/evadnoob/rust-readline.git"

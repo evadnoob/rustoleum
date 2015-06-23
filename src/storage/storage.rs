@@ -1,11 +1,11 @@
-
 use std::env;
 use rustc_serialize::json;
 use std::fs;
-use std::path::{PathBuf, Path};
+use std::path::PathBuf;
 use git2::Repository;
 use std::fs::File;
 use std::io::prelude::*;
+use glob::glob;
 
 #[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
 enum RepositoryType {
@@ -48,24 +48,6 @@ impl Storage {
     }
     
     pub fn bootstrap(&self) {
-        self.init();
-
-        info!("bootstrap done");        
-    }
-
-    pub fn path(&self) -> PathBuf  {
-
-        let mut path = self.path.clone();
-        path.push(".data");
-        return path;
-    }
-
-    pub fn exists(&self) -> bool {
-        return fs::metadata(self.path()).is_ok();
-    }
-
-
-    pub fn init(&self) {
         info!("does file exist ? {:?}", self.path);
         //let mut git_local_repo_path = self.path.clone();
         //git_local_repo_path.push(".data/");
@@ -75,7 +57,7 @@ impl Storage {
             info!("create file result {:?}", x);
             
             match Repository::init(self.git_local_repo_path.as_path()) {
-                Ok(repo) => info!("repo initialized successfully" ),
+                Ok(_) => info!("repo initialized successfully" ),
                 Err(e) => panic!("failed to init: {}", e),
             };
         }
@@ -91,8 +73,18 @@ impl Storage {
         
         let statuses = repo.statuses(None);
         info!("statuses {}", statuses.unwrap().len());
+        info!("bootstrap done");        
     }
-    
+
+    pub fn path(&self) -> PathBuf  {
+        let mut path = self.path.clone();
+        path.push(".data");
+        return path;
+    }
+
+    pub fn exists(&self) -> bool {
+        return fs::metadata(self.path()).is_ok();
+    }
     
     pub fn save(&self, job: Job) {
         let job_as_json = json::as_pretty_json(&job);
@@ -104,25 +96,37 @@ impl Storage {
         match File::create(job_as_json_path.as_path()) {
             Ok(ref mut file) => {
                 info!("created file, ready for writing");
-    //            file.write_all(job_as_json);
-                write!(file, "{}", job_as_json);
-                
+                write!(file, "{}", job_as_json)
             },
             Err(e) => panic!("unable to create file for writing {}", e)
         };
-        
+    }
+
+    pub fn list(&self) {
+        let path = self.git_local_repo_path.to_string_lossy();
+        info!("path {}", path);
+        // path.push_str("*");
+        // info!("path {}", path);
+        for entry in glob(&format!("{}/*", path)).unwrap() {
+            match entry {
+                Ok(p) => info!("{:?}", p),
+
+                // if the path matched but was unreadable,
+                // thereby preventing its contents from matching
+                Err(e) => println!("{:?}", e),
+            }
+        }
     }
 }
 
-pub fn bootstrap() {
+
+pub fn bootstrap() -> Storage {
     let storage = Storage::new();
-    // let repository = Some(RepositoryDescriptor{name: "test".to_string(),
-    //                                 url: Some("http://github.com/evadnoob".to_string()),
-    //                                            repo_type: RepositoryType::Github});
-    
+
     storage.bootstrap();
     storage.save(Job{
         name: Some("test".to_string()),
         description: Some("dsc".to_string()),
         repository: None });
+    return storage;
 }

@@ -1,6 +1,7 @@
 extern crate hyper;
 extern crate docopt;
 extern crate zmq;
+extern crate nanomsg;
 extern crate rustc_serialize;
 extern crate git2;
 
@@ -8,32 +9,39 @@ extern crate git2;
 extern crate log;
 extern crate env_logger;
 extern crate libc;
+extern crate nix;
+extern crate glob;
+
 
 mod agent;
 mod storage;
-mod x;
+mod logging;
 mod repl;
 mod job;
 mod jq;
+mod help;
 
-use x::logging;
+//use x::logging;
 use docopt::Docopt;
 
 static USAGE: &'static str = "
-Publish cli.
+builder cli.
 
 Usage:
-  buildr [options] agent [<args>...]
-  buildr [options] repl
-  buildr [options] storage (init | show)
-
-Options: -v, --verbose 
-         -h, --help
-
+  buildr agent [<args>...]
+  buildr repl
+  buildr storage init
+  buildr storage show
+  buildr storage show
+  buildr -h | --help
+  
+Options: 
+  -v --verbose 
+  -h --help
 
 Some common buildr commands are:
     agent (describe | help)     Various commands related to agent
-    storage (init | help)
+    storage (init | | show | help)
     help 
 See 'buildr help <command>' for more information on a specific command.
 ";
@@ -43,8 +51,13 @@ fn main() {
     let args = Docopt::new(USAGE)
         .and_then(|d| d.help(true).version(Some("0.0.1".to_string())).parse())
         .unwrap_or_else(|e| e.exit());
+    
+    println!("args: {:?}", args); 
+    println!("arg vector: {:?}", args.get_vec("<args>"));
 
-    match logging::init() {
+
+    
+    match logging::logging::init() {
         Err(e) => println!("Unable to initialize logging system: {}", e),
         _ => {}
     }
@@ -58,6 +71,8 @@ fn main() {
     else if args.get_bool("repl") {
         repl::repl::start();
     }
-
-    
+    else if args.get_bool("storage") {
+        let storage = storage::storage::bootstrap();
+        storage.list();
+    }
 }

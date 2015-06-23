@@ -114,5 +114,6 @@ If you're interested in contributing, jump on irc, and fork the repo.
 
 * clone the repo
 * ```brew install zeromq```
+* ```brew install nanomsg```
 * ```cargo build```
 * ```target/debug/buildr repl``` or ```target/debug/buildr agent```
