@@ -1,12 +1,11 @@
+
 extern crate zmq;
 
-use agent::cluster;
-use storage::storage;
+use storage;
 use nix::sys::signal;
-
 pub fn start() {
     setup_signal_handler();
-    cluster::join();
+    //cluster::join();
     storage::bootstrap();
 
     info!("0MQ version: {:?}", zmq::version());
@@ -40,3 +39,4 @@ fn setup_signal_handler() {
         signal::sigaction(signal::SIGINT, &sig_action);
     }
 }
+

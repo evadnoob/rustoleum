@@ -12,12 +12,12 @@ extern crate libc;
 extern crate nix;
 extern crate glob;
 
-
-mod agent;
-mod storage;
+pub mod cluster;
+pub mod agent;
+pub mod jobs;
+pub mod storage;
 mod logging;
 mod repl;
-mod job;
 mod jq;
 mod help;
 
@@ -66,13 +66,13 @@ fn main() {
     trace!("arg vector: {:?}", args.get_vec("<args>"));
     
     if args.get_bool("agent")  { 
-        agent::agent::start();
+        agent::start();
     }
     else if args.get_bool("repl") {
-        repl::repl::start();
+        repl::start();
     }
     else if args.get_bool("storage") {
-        let storage = storage::storage::bootstrap();
+        let storage = storage::bootstrap();
         storage.list();
     }
 }

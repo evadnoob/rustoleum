@@ -1,10 +1,9 @@
 #![allow(unused_must_use)]
 
 extern crate nanomsg;
-
-use nanomsg::{Socket, Protocol};
+use nanomsg::{Socket, Protocol, Error};
 use std::thread::sleep_ms;
-
+use std::str;
 fn participate(host: &str, peers: Vec<&String>) {
 
     println!("{:?}", peers);
@@ -13,18 +12,20 @@ fn participate(host: &str, peers: Vec<&String>) {
         Err(err) => panic!("{}", err)
     };
 
-    match socket.bind(host) {
-        Ok(endpoint) => {
-            println!("socket bind successfully.");
-        },
-        Err(err) => panic!("failed to bind socket {}", err)
-    }
+    let mut endpoint = socket.bind(host).unwrap();
+    
+    // match socket.bind(host) {
+    //     Ok(endpoint) => {
+    //         println!("socket bind successfully.");
+    //     },
+    //     Err(err) => panic!("failed to bind socket {}", err)
+    // }
 
     //
     // connect to peers
     //
     for peer in peers {
-        println!("connecting to peer {}", peer);
+        print!("connecting to peer {}", peer);
         let endpoint = match socket.connect(peer) {
             Ok(ep) => {
                 println!("connected to {}", peer);
@@ -32,13 +33,41 @@ fn participate(host: &str, peers: Vec<&String>) {
             Err(err) => panic!("Failed to connect socket: {}", err)
         };
     }
-
-    
-    
-
     
     sleep_ms(10);
+
+
+    match socket.nb_write(format!(" {} join ", host).as_bytes()) {
+        Ok(_) => println!("sent ok."),
+        Err(err) => assert_eq!(err, Error::TryAgain)
+    }
     
+    
+    loop {
+        let mut buffer = Vec::new();
+        match socket.nb_read_to_end(&mut buffer) {
+            Ok(_) => { 
+                println!("Read message {} !", buffer.len()); 
+
+                let s = match str::from_utf8(&buffer) {
+                    Ok(v) => v,
+                    Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+                };
+                println!("{:?}", s);
+
+                
+                // here we can process the message stored in `msg`
+            },
+            Err(Error::TryAgain) => {
+                //println!("Nothing to be read for the moment ...");
+                // here we can use the CPU for something else and try again later
+            },
+            Err(err) => panic!("Problem while reading: {}", err)
+        };
+    }
+    
+    // TODO: hook to SIGINT handler  
+    endpoint.shutdown();
 }
 
 fn main() {
@@ -52,4 +81,5 @@ fn main() {
     }
     
     participate(args[1].as_ref(), args.iter().skip(2).collect::<Vec<_>>());
+
 }

@@ -1,10 +1,10 @@
 extern crate readline;
 
 use std::process;
-use job::jobs;
-use agent::client;
-use storage::storage;
+use storage;
 use help::help;
+use jobs;
+use cluster;
 
 pub fn start() {
     loop {
@@ -21,7 +21,7 @@ pub fn start() {
                         jobs::list();
                     }
                     else if "ping" == input {
-                        client::ping(4);
+                        cluster::ping(4);
                     }
                     else if "storage" == input {
                         let storage = storage::bootstrap();

@@ -2,7 +2,7 @@
 
 
 [package]
-name = "buildr"
+name = "bldr"
 version = "0.1.0"
 authors = [ "David Boon <david.boon@gmail.com" ]
 
@@ -29,6 +29,7 @@ git2 = "0.2"
 nanomsg = "^0.3.4"
 nix = "*"
 glob = "*"
+term = "0.2"
 
 [dependencies.readline]
 git = "https://github.com/evadnoob/rust-readline.git"

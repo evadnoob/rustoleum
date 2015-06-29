@@ -1,33 +1,46 @@
-# buildr demo
+# Introduction
+
+bldr is a distributed build system. Why? mainly to learn Rust. But
+there are several other reasons, I list some of the goals below, but
+primarily, I'm just interested in building systems, and I really enjoy
+build systems, and automating developer tasks. I've used Jekins,
+Hudson, Bamboo. I've never really enjoyed them, they always seem like
+they are just good enough. All seem built on Java/JVM technology, born
+out of the 2000s, when the jvm was king. We're entering a new era of
+runtime-less languages.
+
+
+
+# bldr demo
 
 In 1st terminal
 
-    $ ./target/debug/buildr agent
-    2015-05-28 09:25:53 INFO [buildr::agent::cluster:src/agent/cluster.rs:3] - joining cluster
+    $ ./target/debug/bldr agent
+    2015-05-28 09:25:53 INFO [bldr::agent::cluster:src/agent/cluster.rs:3] - joining cluster
 
 In 2nd terminal
 
-    $ ./target/debug/buildr repl
+    $ ./target/debug/bldr repl
 	> ping
 	"ping"
-	2015-05-28 09:26:16 INFO [buildr::agent::cluster:src/agent/cluster.rs:3] - joining cluster
-	2015-05-28 09:26:16 INFO [buildr::agent::client:src/agent/client.rs:19] - sending ping 0
-	2015-05-28 09:26:16 INFO [buildr::agent::client:src/agent/client.rs:23] - Received Yes she does: 0
-	2015-05-28 09:26:17 INFO [buildr::agent::client:src/agent/client.rs:19] - sending ping 1
-	2015-05-28 09:26:17 INFO [buildr::agent::client:src/agent/client.rs:23] - Received Yes she does: 1
-	2015-05-28 09:26:18 INFO [buildr::agent::client:src/agent/client.rs:19] - sending ping 2
-	2015-05-28 09:26:18 INFO [buildr::agent::client:src/agent/client.rs:23] - Received Yes she does: 2
-	2015-05-28 09:26:19 INFO [buildr::agent::client:src/agent/client.rs:19] - sending ping 3
-	2015-05-28 09:26:19 INFO [buildr::agent::client:src/agent/client.rs:23] - Received Yes she does: 3
+	2015-05-28 09:26:16 INFO [bldr::agent::cluster:src/agent/cluster.rs:3] - joining cluster
+	2015-05-28 09:26:16 INFO [bldr::agent::client:src/agent/client.rs:19] - sending ping 0
+	2015-05-28 09:26:16 INFO [bldr::agent::client:src/agent/client.rs:23] - Received Yes she does: 0
+	2015-05-28 09:26:17 INFO [bldr::agent::client:src/agent/client.rs:19] - sending ping 1
+	2015-05-28 09:26:17 INFO [bldr::agent::client:src/agent/client.rs:23] - Received Yes she does: 1
+	2015-05-28 09:26:18 INFO [bldr::agent::client:src/agent/client.rs:19] - sending ping 2
+	2015-05-28 09:26:18 INFO [bldr::agent::client:src/agent/client.rs:23] - Received Yes she does: 2
+	2015-05-28 09:26:19 INFO [bldr::agent::client:src/agent/client.rs:19] - sending ping 3
+	2015-05-28 09:26:19 INFO [bldr::agent::client:src/agent/client.rs:23] - Received Yes she does: 3
 	> quit
 
 Meanwhile, back at the ranch
 
-    2015-05-28 09:25:53 INFO [buildr::agent::cluster:src/agent/cluster.rs:3] - joining cluster
-	2015-05-28 09:26:16 INFO [buildr::agent::agent:src/agent/agent.rs:18] - Received Zoe Rocks!!
-	2015-05-28 09:26:17 INFO [buildr::agent::agent:src/agent/agent.rs:18] - Received Zoe Rocks!!
-	2015-05-28 09:26:18 INFO [buildr::agent::agent:src/agent/agent.rs:18] - Received Zoe Rocks!!
-	2015-05-28 09:26:19 INFO [buildr::agent::agent:src/agent/agent.rs:18] - Received Zoe Rocks!!
+    2015-05-28 09:25:53 INFO [bldr::agent::cluster:src/agent/cluster.rs:3] - joining cluster
+	2015-05-28 09:26:16 INFO [bldr::agent::agent:src/agent/agent.rs:18] - Received Zoe Rocks!!
+	2015-05-28 09:26:17 INFO [bldr::agent::agent:src/agent/agent.rs:18] - Received Zoe Rocks!!
+	2015-05-28 09:26:18 INFO [bldr::agent::agent:src/agent/agent.rs:18] - Received Zoe Rocks!!
+	2015-05-28 09:26:19 INFO [bldr::agent::agent:src/agent/agent.rs:18] - Received Zoe Rocks!!
 
 # goals
 
@@ -82,31 +95,37 @@ Meanwhile, back at the ranch
 
 # Modules
 
-## Storage
+#### Storage
 * storage is part configuration, part history, job definition, etc.
   Storage is implemented as a git repository, local.  We use git as a
   version control database.
 
+#### Job Control
 * job control / scheduler - command executor
 
+#### Logging
 * logging - agents log, the logs are viewable from any agent or repl.
 
+#### Agent
 * build agent - process build and deployment jobs, log locally and broadcast log messages.
 
-* repl - an interactive command line interface for dealing with the agents/jobs/schedules etc. 
+#### Repl
+* repl - (the repl is going away)an interactive command line interface for dealing with the agents/jobs/schedules etc. 
 
+#### Cluster/Group Management
 * leadership mgmt/discovery - etcd/zookeeper/paxos/raft like
+
 
 # Development
 
     $ cargo build
-    $ ./target/debug/buildr agent
-    $ ./target/debug/buildr repl
+    $ ./target/debug/bldr agent
+    $ ./target/debug/bldr repl
 
 # Contributing
 Rustoleum is just getting started.  The name is really just a placeholder, if it sticks fine, but I'm sure there must be a better name.
 
-If you're interested in contributing, jump on irc, and fork the repo.  
+If you're interested in contributing, jump on irc, and fork the repo. 
 
 ```#rustoleum on irc.freenode.net```
 
@@ -116,4 +135,4 @@ If you're interested in contributing, jump on irc, and fork the repo.
 * ```brew install zeromq```
 * ```brew install nanomsg```
 * ```cargo build```
-* ```target/debug/buildr repl``` or ```target/debug/buildr agent```
+* ```target/debug/bldr repl``` or ```target/debug/bldr agent```
