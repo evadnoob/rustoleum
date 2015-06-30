@@ -28,22 +28,23 @@ static USAGE: &'static str = "
 builder cli.
 
 Usage:
-  buildr agent [<args>...]
-  buildr repl
-  buildr storage init
-  buildr storage show
-  buildr storage show
-  buildr -h | --help
+  bldr agent [<args>...]
+  bldr repl
+  bldr storage init
+  bldr storage show
+  bldr storage show
+  bldr job add <json>
+  bldr -h | --help
   
 Options: 
   -v --verbose 
   -h --help
 
-Some common buildr commands are:
+Some common bldr commands are:
     agent (describe | help)     Various commands related to agent
     storage (init | | show | help)
     help 
-See 'buildr help <command>' for more information on a specific command.
+See 'bldr help <command>' for more information on a specific command.
 ";
 
 fn main() {

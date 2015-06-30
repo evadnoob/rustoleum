@@ -287,9 +287,9 @@ pub fn bootstrap() -> Storage {
     let storage = Storage::new();
 
     storage.bootstrap();
-    storage.save(Job{
-        name: Some("test".to_string()),
-        description: Some("dsc".to_string()),
-        repository: None });
+    // storage.save(Job{
+    //     name: Some("test".to_string()),
+    //     description: Some("dsc".to_string()),
+    //     repository: None });
     return storage;
 }
