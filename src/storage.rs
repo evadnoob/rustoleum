@@ -14,6 +14,9 @@ enum RepositoryType {
     Github,
 }
 
+
+const REPO_DIR: &'static str = "bldr-repo-data";
+
 #[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
 pub struct RepositoryDescriptor {
     name: String,
@@ -37,27 +40,33 @@ pub struct Storage {
 impl Storage {
 
     pub fn new() -> Storage {
-        let path = env::current_exe().ok().unwrap().parent().unwrap().to_path_buf();
+        //let path = env::current_exe().ok().unwrap().parent().unwrap().to_path_buf();
 
-        info!("{}", path.display());
+        let cwd = env::current_dir().unwrap();
+        info!("The current directory is {}", cwd.display());
 
-        let mut git_local_repo_path = path.clone();
-        git_local_repo_path.push(".data/");
+        
+        //info!("{}", path.display());
 
-        Storage {path: path, git_local_repo_path: git_local_repo_path}  
+        let mut git_local_repo_path = cwd.clone(); //path.clone();
+        git_local_repo_path.push(REPO_DIR);
+
+        Storage {path: cwd, git_local_repo_path: git_local_repo_path}  
     }
     
     pub fn bootstrap(&self) {
         info!("does file exist ? {:?}", self.path);
-        //let mut git_local_repo_path = self.path.clone();
-        //git_local_repo_path.push(".data/");
         if !self.exists() {
             info!("creating storage directory {:?}", self.git_local_repo_path);
             let x = fs::create_dir_all(self.git_local_repo_path.as_path());
             info!("create file result {:?}", x);
             
             match Repository::init(self.git_local_repo_path.as_path()) {
-                Ok(_) => info!("repo initialized successfully" ),
+                Ok(_) => {
+                    info!("repo initialized successfully" );
+                    info!("Created empty initial commit"); 
+                        
+                },
                 Err(e) => panic!("failed to init: {}", e),
             };
         }
@@ -70,6 +79,8 @@ impl Storage {
             Err(e) => panic!("failed to init: {}", e),
         };
         info!("opened repo {:?}", repo.path());
+        self.create_initial_commit(&repo);
+
         
         let statuses = repo.statuses(None);
         info!("statuses {}", statuses.unwrap().len());
@@ -78,7 +89,7 @@ impl Storage {
 
     fn path(&self) -> PathBuf  {
         let mut path = self.path.clone();
-        path.push(".data");
+        path.push(REPO_DIR);
         return path;
     }
 
@@ -122,6 +133,7 @@ impl Storage {
    }
 
     fn stage(&self, repo: &Repository, path: &Path) {
+        info!("stage");
         let mut index = match repo.index() {
             Ok(index) => index,
             Err(e) => panic!("failed to get index {}", e)
@@ -149,16 +161,65 @@ impl Storage {
         
         info!("added {:?}", path);
         self.show_statuses(&repo);
+
+        match index.write() {
+            Ok(_) => info!("index write ok."),
+            Err(e) => panic!("Error: failed to write index {}", e)
+        };
     }
 
     fn commit(&self, repo: &Repository) {
+        info!("commit");
         let mut index = repo.index().unwrap();
         let id = index.write_tree().unwrap();
-        let tree = repo.find_tree(id).unwrap();
-        let sig = repo.signature().unwrap();
         
-        repo.commit(Some("HEAD"), &sig, &sig, "automated commit", &tree, &[]).unwrap();
+        let head = repo.refname_to_id("HEAD").unwrap();
+        //info!("HEAD: {}", head);
+         match repo.find_commit(head) {
+            Ok(commit) => {
+            info!("commit: {}", commit.id());
+            // let parents = commit.parents().len();
+            // info!("HEAD: {:?}, parents: {}", id, parents);
+
+                let tree = repo.find_tree(id).unwrap();
+                let sig = repo.signature().unwrap();
+                repo.commit(Some("HEAD"), &sig, &sig, "automated commit", &tree, &[&commit]).unwrap();
+            },
+             Err(e) => panic!("error {}", e)
+         }
     }
+
+
+    /// Unlike regular "git init", this example shows how to create an initial empty
+    /// commit in the repository. This is the helper function that does that.
+    fn create_initial_commit(&self, repo: &Repository) -> Result<(), Error> {
+        // First use the config to initialize a commit signature for the user.
+        let sig = try!(repo.signature());
+
+        // Now let's create an empty tree for this commit
+        let tree_id = {
+            let mut index = try!(repo.index());
+
+            // Outside of this example, you could call index.add_path()
+            // here to put actual files into the index. For our purposes, we'll
+            // leave it empty for now.
+
+            try!(index.write_tree())
+        };
+
+        let tree = try!(repo.find_tree(tree_id));
+
+        // Ready to create the initial commit.
+        //
+        // Normally creating a commit would involve looking up the current HEAD
+        // commit and making that be the parent of the initial commit, but here this
+        // is the first commit so there will be no parent.
+        try!(repo.commit(Some("HEAD"), &sig, &sig, "Initial commit", &tree, &[]));
+
+        Ok(())
+    }
+
+    
 
     
     fn exists(&self) -> bool {
@@ -166,6 +227,7 @@ impl Storage {
     }
     
     pub fn save(&self, job: Job) {
+        info!("save");
         let job_as_json = json::as_pretty_json(&job);
         let mut job_as_json_path = PathBuf::from(self.git_local_repo_path.clone());
         job_as_json_path.push("job1.json");
@@ -186,14 +248,20 @@ impl Storage {
             Err(e) => panic!("failed to init: {}", e),
         };
         info!("opened repo {:?}", repo.path());
- 
+
+        // http://stackoverflow.com/questions/27672722/libgit2-commit-example
+        // Get the index and write it to a tree */
+        // git_repository_index(&index, repo);
+        // git_index_write_tree(tree, index);
+        // git_reference_name_to_id(parent_id, repo, "HEAD");
+        // git_commit_lookup(&parent, repo, parent_id);
+       
 
         self.show_statuses(&repo);
           
         self.stage(&repo, job_as_json_path.as_path());
         
-        //self.commit(&repo);
-        
+        self.commit(&repo);
         
     }
 
