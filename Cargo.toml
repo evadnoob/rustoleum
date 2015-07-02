@@ -20,7 +20,6 @@ license = "MIT"
 [dependencies]
 hyper = "0.5.0"
 docopt = "0.6.67"
-rustc-serialize = "*"
 log = "0.3.1"
 env_logger = "0.3.1"
 time = "0.1"
@@ -30,6 +29,10 @@ nanomsg = "^0.3.4"
 nix = "*"
 glob = "*"
 term = "0.2"
+syntex_syntax = "^0.7.0"
+serde = "0.4"
+serde_macros = "0.4.1"
+
 
 [dependencies.readline]
 git = "https://github.com/evadnoob/rust-readline.git"

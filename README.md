@@ -118,6 +118,8 @@ Meanwhile, back at the ranch
 
 # Development
 
+You'll need rust nightly to 'build'
+
     $ cargo build
     $ ./target/debug/bldr agent
     $ ./target/debug/bldr repl

@@ -1,34 +1,37 @@
-extern crate git2;
 
+extern crate git2;
 use std::env;
-use rustc_serialize::json;
 use std::fs;
 use std::path::{Path, PathBuf};
 use git2::{Repository, Error, Signature, StatusOptions, ErrorCode};
 use std::fs::File;
 use std::io::prelude::*;
 use glob::glob;
+use serde::{json, de, ser};
 
-#[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
+const REPO_DIR: &'static str = "bldr-repo-data";
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+//#[derive_deserialize]
 enum RepositoryType {
     Github,
 }
 
 
-const REPO_DIR: &'static str = "bldr-repo-data";
-
-#[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+//#[derive_deserialize]
 pub struct RepositoryDescriptor {
-    name: String,
+    name: Option<String>,
     url: Option<String>,
     repo_type: RepositoryType
 }
 
-#[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+//#[derive_deserialize]
 pub struct Job {
-    name: Option<String>,
+    name: String,
     description: Option<String>,
-    repository: Option<RepositoryDescriptor>
+    repository: RepositoryDescriptor
 }
 
 #[derive(Debug)]
@@ -228,7 +231,7 @@ impl Storage {
     
     pub fn save(&self, job: Job) {
         info!("save");
-        let job_as_json = json::as_pretty_json(&job);
+        let job_as_json = json::to_string_pretty(&job).unwrap();
         let mut job_as_json_path = PathBuf::from(self.git_local_repo_path.clone());
         job_as_json_path.push("job1.json");
         info!("adding...{}", job_as_json);
