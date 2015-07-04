@@ -1,5 +1,6 @@
 #![feature(custom_derive, plugin, macro_rules)]
 //#![plugin(serde_macros)]
+extern crate rustc_serialize;
 
 extern crate hyper;
 extern crate docopt;
@@ -101,7 +102,7 @@ fn main() {
         // right now assume sub-command for specific type of 'add'.
         let json = args.get_str("<json>");
         info!("json: {}", json);
-        match jobs::from_raw_json(json) {
+        match jobs::from_raw_json(&storage, json) {
             Ok(_) => println!("got raw json ok."),
             Err(e) => panic!("uh oh {}", e)
         };

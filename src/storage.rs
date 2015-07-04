@@ -7,18 +7,20 @@ use git2::{Repository, Error, Signature, StatusOptions, ErrorCode};
 use std::fs::File;
 use std::io::prelude::*;
 use glob::glob;
-use serde::{json, de, ser};
+//use serde::{json, de, ser};
+use rustc_serialize::json;
 
 const REPO_DIR: &'static str = "bldr-repo-data";
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
+//#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 //#[derive_deserialize]
 enum RepositoryType {
     Github,
 }
 
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
+//#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 //#[derive_deserialize]
 pub struct RepositoryDescriptor {
     name: Option<String>,
@@ -26,7 +28,8 @@ pub struct RepositoryDescriptor {
     repo_type: RepositoryType
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
+//#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 //#[derive_deserialize]
 pub struct Job {
     name: String,
@@ -34,7 +37,8 @@ pub struct Job {
     repository: RepositoryDescriptor
 }
 
-#[derive(Debug)]
+#[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
+//#[derive(Debug)]
 pub struct Storage {
     git_local_repo_path: PathBuf,
     path: PathBuf,
@@ -231,9 +235,10 @@ impl Storage {
     
     pub fn save(&self, job: Job) {
         info!("save");
-        let job_as_json = json::to_string_pretty(&job).unwrap();
+        //let job_as_json = json::to_string_pretty(&job).unwrap();
+        let job_as_json = json::as_pretty_json(&job);
         let mut job_as_json_path = PathBuf::from(self.git_local_repo_path.clone());
-        job_as_json_path.push("job1.json");
+        job_as_json_path.push(format!("job_{}.json", job.name));
         info!("adding...{}", job_as_json);
         info!("job_as_json_path {}", job_as_json_path.display());
 
