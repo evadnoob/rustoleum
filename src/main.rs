@@ -33,7 +33,7 @@ static USAGE: &'static str = "
 builder cli.
 
 Usage:
-  bldr agent [<args>...]
+  bldr agent [--port=<portnumber>] [<peers>...]
   bldr repl
   bldr storage init
   bldr storage show
@@ -51,15 +51,6 @@ Some common bldr commands are:
     help 
 See 'bldr help <command>' for more information on a specific command.
 ";
-
-// #[derive(RustcDecodable, Debug)]
-// struct Args {
-//     arg_source: Vec<String>,
-//     arg_dest: String,
-//     arg_dir: String,
-//     flag_archive: bool,
-// }
-
 
 fn main() {
     
@@ -79,8 +70,9 @@ fn main() {
     trace!("args: {:?}", args); 
     trace!("arg vector: {:?}", args.get_vec("<args>"));
     
-    if args.get_bool("agent")  { 
-        agent::start();
+    if args.get_bool("agent")  {
+        info!("local: {}, peers: {:?}", args.get_str("<portnumber>"), args.get_vec("<peers>"));
+        //agent::start("", vec![""]);
     }
     else if args.get_bool("repl") {
         repl::start();
@@ -107,5 +99,4 @@ fn main() {
             Err(e) => panic!("uh oh {}", e)
         };
     }
-
 }

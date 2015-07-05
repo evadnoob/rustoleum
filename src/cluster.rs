@@ -1,65 +1,91 @@
-extern crate nix;
-extern crate zmq;
+#![allow(unused_must_use)]
 
-use std::thread;
+extern crate nanomsg;
+use nanomsg::{Socket, Protocol, Error};
+use std::thread::sleep_ms;
+use std::str;
 
-//todo:
-// ** determine if running alone, or find a leader via discovery
-// ** if leader cannot be discovered, become leader.
-// ** set leader and leader status via TLS, so that other threads can easily access cluster.
+pub fn participate(host: &str, peers: Vec<&str>) {
 
-pub fn join() {
-    let mut name = [0u8; 256];
-    let mut buf = &mut name[..];
-    
-    //TODO: this doesn't work, not sure why....    
-    let hostname = match nix::unistd::gethostname(buf) {
-        Ok(x) => {
-            println!("x: {:?}", x);
-            return x;
-        },
-        _ => println!("uh oh")
+    println!("{:?}", peers);
+    let mut socket = match Socket::new(Protocol::Bus) {
+        Ok(socket) => socket,
+        Err(err) => panic!("{}", err)
     };
 
-    //info!("name {:?}", name); 
-    info!("hostname {:?}", hostname);
-    //info!("hostname {:?}, buf: {}", name, String::from_utf8(&buf).unwrap());
-    //info!("{:?}", nix::unistd::gethostname(&vec));
-    info!("joining cluster");
-    info!("no leader discovered, becoming leader");
-    broadcast("<hostname:port> joined...".to_string());
+    let mut endpoint = socket.bind(host).unwrap();
     
-}
+    // match socket.bind(host) {
+    //     Ok(endpoint) => {
+    //         println!("socket bind successfully.");
+    //     },
+    //     Err(err) => panic!("failed to bind socket {}", err)
+    // }
 
-pub fn broadcast(message: String) {
-    info!("broadcasting: {}", message);
+    //
+    // connect to peers
+    //
+    for peer in peers {
+        print!("connecting to peer {}", peer);
+        let endpoint = match socket.connect(peer) {
+            Ok(ep) => {
+                println!("connected to {}", peer);
+            },
+            Err(err) => panic!("Failed to connect socket: {}", err)
+        };
+    }
+    
+    sleep_ms(10);
+
+
+    match socket.nb_write(format!(" {} join ", host).as_bytes()) {
+        Ok(_) => println!("sent ok."),
+        Err(err) => assert_eq!(err, Error::TryAgain)
+    }
+    
+    
+    loop {
+        let mut buffer = Vec::new();
+        match socket.nb_read_to_end(&mut buffer) {
+            Ok(_) => { 
+                println!("Read message {} !", buffer.len()); 
+
+                let s = match str::from_utf8(&buffer) {
+                    Ok(v) => v,
+                    Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+                };
+                println!("{:?}", s);
+
+                
+                // here we can process the message stored in `msg`
+            },
+            Err(Error::TryAgain) => {
+                //println!("Nothing to be read for the moment ...");
+                // here we can use the CPU for something else and try again later
+            },
+            Err(err) => panic!("Problem while reading: {}", err)
+        };
+    }
+    
+    // TODO: hook to SIGINT handler  
+    endpoint.shutdown();
 }
 
 
 pub fn ping(count: i32) {
-    join();
-
-    let mut context = zmq::Context::new();
-    let mut requester = context.socket(zmq::REQ).unwrap();
-
-    assert!(requester.connect("tcp://localhost:5555").is_ok());
-
-    let mut msg = zmq::Message::new().unwrap();
-    //let mut x = 0;
-    
-    for x in 0..count {
-        
-        info!("sending ping {}", x);
-        requester.send(b"Zoe Rocks!!", 0).unwrap();
-
-        requester.recv(&mut msg, 0).unwrap();
-        info!("Received {}: {}", msg.as_str().unwrap(), x);
-        //x += 1;
-        thread::sleep_ms(1000);
-    }
-    
+    info!("ping");
 }
 
+// fn main() {
 
+//     let args: Vec<_> = std::env::args().collect();
 
+//     // args[0] program name
+//     // args[1] self 
+//     for x in 2..args.len() {
+//         println!("{} {}", x, args[x]); // x: i32
+//     }
+    
+//     participate(args[1].as_ref(), args.iter().skip(2).collect::<Vec<_>>());
 
+// }

@@ -138,3 +138,8 @@ If you're interested in contributing, jump on irc, and fork the repo.
 * ```brew install nanomsg```
 * ```cargo build```
 * ```target/debug/bldr repl``` or ```target/debug/bldr agent```
+
+# Add a job
+
+[jobs](jobs.md)
+
