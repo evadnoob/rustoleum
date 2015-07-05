@@ -71,8 +71,18 @@ fn main() {
     trace!("arg vector: {:?}", args.get_vec("<args>"));
     
     if args.get_bool("agent")  {
+        let peers = args.get_vec("<peers>");
+        
+        // args[0] program name
+        // args[1] self 
+        for x in 1..peers.len() {
+            println!("{} {}", x, peers[x]); // x: i32
+        }
+    
+        //peers[0].as_ref(), args.iter().skip(1).collect::<Vec<_>>());
+        
         info!("local: {}, peers: {:?}", args.get_str("<portnumber>"), args.get_vec("<peers>"));
-        //agent::start("", vec![""]);
+        agent::start(peers);
     }
     else if args.get_bool("repl") {
         repl::start();

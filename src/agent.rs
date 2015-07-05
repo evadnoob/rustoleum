@@ -3,10 +3,16 @@ use cluster;
 use storage;
 use nix::sys::signal;
 
-pub fn start(port: &str, peers: Vec<&str>) {
+pub fn start(peers: Vec<&str>) {
     setup_signal_handler();
 
-    cluster::participate(port, peers);
+    for x in 1..peers.len() {
+      println!("{} {}", x, peers[x]); // x: i32
+    }
+    //peers[0].as_ref(), args.iter().skip(1).collect::<Vec<_>>());
+     
+    //cluster::participate(peers[0].as_ref(), peers.iter().skip(1).collect::<Vec<_>>());
+    cluster::participate(peers[0].as_ref(), peers.iter().skip(1).map(|s| s.to_owned()).collect::<Vec<_>>());
 }
 
 extern fn handle_sigint(_:i32) {

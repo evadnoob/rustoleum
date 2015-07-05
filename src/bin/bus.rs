@@ -6,33 +6,33 @@ use std::thread::sleep_ms;
 use std::str;
 fn participate(host: &str, peers: Vec<&String>) {
 
-    // println!("{:?}", peers);
-    // let mut socket = match Socket::new(Protocol::Bus) {
-    //     Ok(socket) => socket,
-    //     Err(err) => panic!("{}", err)
-    // };
+    println!("{:?}", peers);
+    let mut socket = match Socket::new(Protocol::Bus) {
+        Ok(socket) => socket,
+        Err(err) => panic!("{}", err)
+    };
 
-    // let mut endpoint = socket.bind(host).unwrap();
+    let mut endpoint = socket.bind(host).unwrap();
     
-    // // match socket.bind(host) {
-    // //     Ok(endpoint) => {
-    // //         println!("socket bind successfully.");
-    // //     },
-    // //     Err(err) => panic!("failed to bind socket {}", err)
-    // // }
-
-    // //
-    // // connect to peers
-    // //
-    // for peer in peers {
-    //     print!("connecting to peer {}", peer);
-    //     let endpoint = match socket.connect(peer) {
-    //         Ok(ep) => {
-    //             println!("connected to {}", peer);
-    //         },
-    //         Err(err) => panic!("Failed to connect socket: {}", err)
-    //     };
+    // match socket.bind(host) {
+    //     Ok(endpoint) => {
+    //         println!("socket bind successfully.");
+    //     },
+    //     Err(err) => panic!("failed to bind socket {}", err)
     // }
+
+    //
+    // connect to peers
+    //
+    for peer in peers {
+        print!("connecting to peer {}", peer);
+        let endpoint = match socket.connect(peer) {
+            Ok(ep) => {
+                println!("connected to {}", peer);
+            },
+            Err(err) => panic!("Failed to connect socket: {}", err)
+        };
+    }
     
     sleep_ms(10);
 
