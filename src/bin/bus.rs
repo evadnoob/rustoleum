@@ -70,6 +70,13 @@ fn participate(host: &str, peers: Vec<&String>) {
     endpoint.shutdown();
 }
 
+// bus 'tcp://0.0.0.0:4445' 'tcp://0.0.0.0:4444' 'tcp://0.0.0.0:4446'
+// 2 tcp://0.0.0.0:4444
+// 3 tcp://0.0.0.0:4446
+// ["tcp://0.0.0.0:4444", "tcp://0.0.0.0:4446"]
+// connecting to peer tcp://0.0.0.0:4444connected to tcp://0.0.0.0:4444
+// connecting to peer tcp://0.0.0.0:4446connected to tcp://0.0.0.0:4446
+// sent ok.
 fn main() {
 
     let args: Vec<_> = std::env::args().collect();

@@ -118,9 +118,11 @@ Meanwhile, back at the ranch
 
 # Development
 
+You'll need rust nightly to 'build'
+
     $ cargo build
     $ ./target/debug/bldr agent
-    $ ./target/debug/bldr repl
+    $ ./target/debug/bldr add job....
 
 # Contributing
 Rustoleum is just getting started.  The name is really just a placeholder, if it sticks fine, but I'm sure there must be a better name.
@@ -136,3 +138,8 @@ If you're interested in contributing, jump on irc, and fork the repo.
 * ```brew install nanomsg```
 * ```cargo build```
 * ```target/debug/bldr repl``` or ```target/debug/bldr agent```
+
+# Add a job
+
+[jobs](jobs.md)
+

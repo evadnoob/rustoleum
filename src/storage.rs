@@ -1,37 +1,44 @@
-extern crate git2;
 
+extern crate git2;
 use std::env;
-use rustc_serialize::json;
 use std::fs;
 use std::path::{Path, PathBuf};
 use git2::{Repository, Error, Signature, StatusOptions, ErrorCode};
 use std::fs::File;
 use std::io::prelude::*;
 use glob::glob;
-
-#[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
-enum RepositoryType {
-    Github,
-}
-
+//use serde::{json, de, ser};
+use rustc_serialize::json;
 
 const REPO_DIR: &'static str = "bldr-repo-data";
 
 #[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
+//#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+//#[derive_deserialize]
+enum RepositoryType {
+    Github,
+}
+
+#[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
+//#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+//#[derive_deserialize]
 pub struct RepositoryDescriptor {
-    name: String,
+    name: Option<String>,
     url: Option<String>,
     repo_type: RepositoryType
 }
 
 #[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
+//#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+//#[derive_deserialize]
 pub struct Job {
-    name: Option<String>,
+    name: String,
     description: Option<String>,
-    repository: Option<RepositoryDescriptor>
+    repository: RepositoryDescriptor
 }
 
-#[derive(Debug)]
+#[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
+//#[derive(Debug)]
 pub struct Storage {
     git_local_repo_path: PathBuf,
     path: PathBuf,
@@ -40,13 +47,9 @@ pub struct Storage {
 impl Storage {
 
     pub fn new() -> Storage {
-        //let path = env::current_exe().ok().unwrap().parent().unwrap().to_path_buf();
 
         let cwd = env::current_dir().unwrap();
         info!("The current directory is {}", cwd.display());
-
-        
-        //info!("{}", path.display());
 
         let mut git_local_repo_path = cwd.clone(); //path.clone();
         git_local_repo_path.push(REPO_DIR);
@@ -65,7 +68,7 @@ impl Storage {
                 Ok(_) => {
                     info!("repo initialized successfully" );
                     info!("Created empty initial commit"); 
-                        
+                    
                 },
                 Err(e) => panic!("failed to init: {}", e),
             };
@@ -92,45 +95,35 @@ impl Storage {
         path.push(REPO_DIR);
         return path;
     }
-
-    // fn repo<'a>(&self) -> &'a Repository {
-    //     let repo: &Repository = match Repository::open(self.git_local_repo_path.as_path()) {
-    //         Ok(x) => &x,
-    //         Err(e) => panic!("failed to init: {}", e),
-    //     };
-    //     info!("opened repo {:?}", repo.path());
-    //     return &repo;
-    // }
-
-        
-   fn show_statuses(&self, repo: &Repository) {
-       let mut opts = StatusOptions::new();
+    
+    fn show_statuses(&self, repo: &Repository) {
+        let mut opts = StatusOptions::new();
         opts.include_ignored(false).include_untracked(true);
-       //let statuses = try!(repo.statuses(None));
-       match repo.statuses(Some(&mut opts)) {
-           Ok(statuses) => {
-               for entry in statuses.iter().filter(|e| e.status() != git2::STATUS_CURRENT) {
-                   let path = entry.path();
-                   info!("path: {}", path.unwrap_or(""));
-                       
-                   let status = match entry.status() {
-                    s if s.contains(git2::STATUS_INDEX_NEW) => "new file: ",
-                    s if s.contains(git2::STATUS_INDEX_MODIFIED) => "modified: ",
-                    s if s.contains(git2::STATUS_INDEX_DELETED) => "deleted: ",
-                    s if s.contains(git2::STATUS_INDEX_RENAMED) => "renamed: ",
-                    s if s.contains(git2::STATUS_INDEX_TYPECHANGE) => "typechange:",
-                    s if s.contains(git2::STATUS_WT_NEW) => "wt new: ",
-                    _ => continue,
-                   };
-                   
-                   info!("{} {}", path.unwrap_or(""), status);
-               }
+        //let statuses = try!(repo.statuses(None));
+        match repo.statuses(Some(&mut opts)) {
+            Ok(statuses) => {
+                for entry in statuses.iter().filter(|e| e.status() != git2::STATUS_CURRENT) {
+                    let path = entry.path();
+                    info!("path: {}", path.unwrap_or(""));
+                    
+                    let status = match entry.status() {
+                        s if s.contains(git2::STATUS_INDEX_NEW) => "new file: ",
+                        s if s.contains(git2::STATUS_INDEX_MODIFIED) => "modified: ",
+                        s if s.contains(git2::STATUS_INDEX_DELETED) => "deleted: ",
+                        s if s.contains(git2::STATUS_INDEX_RENAMED) => "renamed: ",
+                        s if s.contains(git2::STATUS_INDEX_TYPECHANGE) => "typechange:",
+                        s if s.contains(git2::STATUS_WT_NEW) => "wt new: ",
+                        _ => continue,
+                    };
+                    
+                    info!("{} {}", path.unwrap_or(""), status);
+                }
 
-               info!("status length {}", statuses.len());
-           },
-           _ => panic!("failed to get statuses")
-       }
-   }
+                info!("status length {}", statuses.len());
+            },
+            _ => panic!("failed to get statuses")
+        }
+    }
 
     fn stage(&self, repo: &Repository, path: &Path) {
         info!("stage");
@@ -175,18 +168,18 @@ impl Storage {
         
         let head = repo.refname_to_id("HEAD").unwrap();
         //info!("HEAD: {}", head);
-         match repo.find_commit(head) {
+        match repo.find_commit(head) {
             Ok(commit) => {
-            info!("commit: {}", commit.id());
-            // let parents = commit.parents().len();
-            // info!("HEAD: {:?}, parents: {}", id, parents);
+                info!("commit: {}", commit.id());
+                // let parents = commit.parents().len();
+                // info!("HEAD: {:?}, parents: {}", id, parents);
 
                 let tree = repo.find_tree(id).unwrap();
                 let sig = repo.signature().unwrap();
                 repo.commit(Some("HEAD"), &sig, &sig, "automated commit", &tree, &[&commit]).unwrap();
             },
-             Err(e) => panic!("error {}", e)
-         }
+            Err(e) => panic!("error {}", e)
+        }
     }
 
 
@@ -228,9 +221,10 @@ impl Storage {
     
     pub fn save(&self, job: Job) {
         info!("save");
+        //let job_as_json = json::to_string_pretty(&job).unwrap();
         let job_as_json = json::as_pretty_json(&job);
         let mut job_as_json_path = PathBuf::from(self.git_local_repo_path.clone());
-        job_as_json_path.push("job1.json");
+        job_as_json_path.push(format!("job_{}.json", job.name));
         info!("adding...{}", job_as_json);
         info!("job_as_json_path {}", job_as_json_path.display());
 
@@ -243,7 +237,7 @@ impl Storage {
         };
 
         //let repo = self.repo();
-         let repo = match Repository::open(self.git_local_repo_path.as_path()) {
+        let repo = match Repository::open(self.git_local_repo_path.as_path()) {
             Ok(x) => x,
             Err(e) => panic!("failed to init: {}", e),
         };
@@ -255,10 +249,10 @@ impl Storage {
         // git_index_write_tree(tree, index);
         // git_reference_name_to_id(parent_id, repo, "HEAD");
         // git_commit_lookup(&parent, repo, parent_id);
-       
+        
 
         self.show_statuses(&repo);
-          
+        
         self.stage(&repo, job_as_json_path.as_path());
         
         self.commit(&repo);
@@ -287,9 +281,5 @@ pub fn bootstrap() -> Storage {
     let storage = Storage::new();
 
     storage.bootstrap();
-    // storage.save(Job{
-    //     name: Some("test".to_string()),
-    //     description: Some("dsc".to_string()),
-    //     repository: None });
     return storage;
 }
