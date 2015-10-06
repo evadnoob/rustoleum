@@ -38,9 +38,6 @@ serde = "0.4"
 [dependencies.readline]
 git = "https://github.com/evadnoob/rust-readline.git"
 
-[dependencies.zmq]
-git = "https://github.com/erickt/rust-zmq.git"
-
 
 
 

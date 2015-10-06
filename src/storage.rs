@@ -3,7 +3,7 @@ extern crate git2;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
-use git2::{Repository, Error, Signature, StatusOptions, ErrorCode};
+use git2::{Repository, Error, StatusOptions};
 use std::fs::File;
 use std::io::prelude::*;
 use glob::glob;
@@ -81,8 +81,12 @@ impl Storage {
             Ok(repo) => repo,
             Err(e) => panic!("failed to init: {}", e),
         };
+        
         info!("opened repo {:?}", repo.path());
-        self.create_initial_commit(&repo);
+        match self.create_initial_commit(&repo) {
+            Ok(_) => println!("initial commit created ok."),
+            Err(e) => panic!("failed to create initial commit {}", e)
+        };
 
         
         let statuses = repo.statuses(None);
@@ -150,7 +154,10 @@ impl Storage {
         
         let cb = cb as &mut git2::IndexMatchedPath;
         
-        index.add_all(path_spec.iter(), git2::ADD_DEFAULT, Some(cb));
+        match index.add_all(path_spec.iter(), git2::ADD_DEFAULT, Some(cb)) {
+            Ok(_) => info!("add_all ok."),
+            Err(e) => panic!("error performing index.add_all {}", e)
+        };
         
         info!("added {:?}", path);
         self.show_statuses(&repo);
@@ -211,7 +218,6 @@ impl Storage {
 
         Ok(())
     }
-
     
 
     

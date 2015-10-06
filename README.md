@@ -42,6 +42,40 @@ Meanwhile, back at the ranch
 	2015-05-28 09:26:18 INFO [bldr::agent::agent:src/agent/agent.rs:18] - Received Zoe Rocks!!
 	2015-05-28 09:26:19 INFO [bldr::agent::agent:src/agent/agent.rs:18] - Received Zoe Rocks!!
 
+
+# agent startup/bootstrap output
+
+Start agent1
+
+    ❯ target/debug/bldr agent 'tcp://0.0.0.0:4444' 'tcp://0.0.0.0:4445'
+    args: -h, --help => Switch(false)
+    -v, --verbose => Switch(false)
+    <id => Counted(0)
+    <id> => List([])
+    <json> => Plain(None)
+    <peers> => List(["tcp://0.0.0.0:4444", "tcp://0.0.0.0:4445"])
+    add => Switch(false)
+    agent => Switch(true)
+    init => Switch(false)
+    jobs => Switch(false)
+    list => Switch(false)
+    repl => Switch(false)
+    rm => Switch(false)
+    show => Switch(false)
+    storage => Switch(false)
+    arg vector: []
+    1 tcp://0.0.0.0:4445
+    2015-10-02 15:36:52 INFO [bldr:src/main.rs:84] - local: , peers: ["tcp://0.0.0.0:4444", "tcp://0.0.0.0:4445"]
+    peers: ["tcp://0.0.0.0:4445"]
+    setting up signal handler
+    connecting to peer tcp://0.0.0.0:4445
+    connected to tcp://0.0.0.0:4445
+    2015-10-02 15:36:52 INFO [bldr::cluster:src/cluster.rs:40] - endpoints: 1
+    sent ok.
+    2015-10-02 15:36:52 INFO [bldr::cluster:src/cluster.rs:49] - Timespec { sec: 1443825412, nsec: 975632000 }
+    Read message 25 !
+    " tcp://0.0.0.0:4445 join "
+
 # goals
 
 * develop a decentralized distributed build system, with agents doing the real work

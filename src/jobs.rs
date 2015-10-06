@@ -1,12 +1,7 @@
-#![feature(custom_derive)]
-    
 //use serde::{json, de, ser};
 use storage::{Job, Storage};
 use rustc_serialize::json;
 
-pub fn list() {
-    info!("doing list");
-}
 
 pub fn from_raw_json(storage: &Storage, raw_json: &str) -> Result<(), &'static str> {
     info!("from_raw_json: {}", raw_json);
@@ -22,3 +17,16 @@ pub fn from_raw_json(storage: &Storage, raw_json: &str) -> Result<(), &'static s
     storage.save(decoded);
     Ok(())
 }
+
+
+pub fn list() {
+}
+
+//f: Fn<(), Output=()>
+    
+// pub fn list(storage: &Storage, f: Fn<(), Output=()>) {
+//    info!("doing list");
+
+//     f();
+    
+// }

@@ -2,7 +2,6 @@ extern crate readline;
 
 use std::process;
 use storage;
-use help::help;
 use jobs;
 use cluster;
 
@@ -15,10 +14,10 @@ pub fn start() {
                     readline::add_history(input.as_ref());
                     println!("{:?}", input);
                     if "help" == input {
-                        help::help();
+                      println!("help comes later....");
                     }
                     else if "jobs" == input {
-                        jobs::list();
+                        //jobs::list();
                     }
                     else if "ping" == input {
                         cluster::ping(4);
