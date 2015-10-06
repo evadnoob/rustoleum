@@ -3,14 +3,17 @@ extern crate git2;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
-use git2::{Repository, Error, StatusOptions};
 use std::fs::File;
 use std::io::prelude::*;
 use glob::glob;
 //use serde::{json, de, ser};
 use rustc_serialize::json;
+use git2::{Repository, Error, StatusOptions, ErrorCode, SubmoduleIgnore};
 
 const REPO_DIR: &'static str = "bldr-repo-data";
+
+#[derive(Eq, PartialEq)]
+enum Format { Long, Short, Porcelain }
 
 #[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
 //#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -83,12 +86,18 @@ impl Storage {
         };
         
         info!("opened repo {:?}", repo.path());
-        match self.create_initial_commit(&repo) {
-            Ok(_) => println!("initial commit created ok."),
-            Err(e) => panic!("failed to create initial commit {}", e)
-        };
-
-        
+        match self.find_head(&repo, Format::Short) {
+            Ok(commit) => info!("found ref {:?}", commit),
+            _ => {
+                info!("unable to find head");
+                
+                match self.create_initial_commit(&repo ) {
+                    Ok(_) => info!("initial commit created ok."),
+                    Err(e) => panic!("failed to create initial commit {}", e)
+                };
+            }
+        }
+                
         let statuses = repo.statuses(None);
         info!("statuses {}", statuses.unwrap().len());
         info!("bootstrap done");        
@@ -190,8 +199,25 @@ impl Storage {
     }
 
 
-    /// Unlike regular "git init", this example shows how to create an initial empty
-    /// commit in the repository. This is the helper function that does that.
+    fn find_head(&self, repo: &Repository, format: Format) -> Result<(), Error> {
+        let head = match repo.head() {
+            Ok(head) => Some(head),
+            Err(ref e) if e.code() == ErrorCode::UnbornBranch ||
+                e.code() == ErrorCode::NotFound => None,
+            Err(e) => return Err(e),
+        };
+        let head = head.as_ref().and_then(|h| h.shorthand());
+
+        if format == Format::Long {
+            info!("# On branch {}",
+                     head.unwrap_or("Not currently on any branch"));
+        } else {
+            info!("## {}", head.unwrap_or("HEAD (no branch)"));
+        }
+        Ok(())
+            
+    }
+
     fn create_initial_commit(&self, repo: &Repository) -> Result<(), Error> {
         // First use the config to initialize a commit signature for the user.
         let sig = try!(repo.signature());
@@ -200,9 +226,7 @@ impl Storage {
         let tree_id = {
             let mut index = try!(repo.index());
 
-            // Outside of this example, you could call index.add_path()
-            // here to put actual files into the index. For our purposes, we'll
-            // leave it empty for now.
+            // call index.add_path() here to put actual files into the index.
 
             try!(index.write_tree())
         };
