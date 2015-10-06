@@ -1,10 +1,11 @@
-#![feature(custom_derive, plugin, macro_rules)]
+#![feature(custom_derive, plugin)]
+#![feature(unboxed_closures)]
+
 //#![plugin(serde_macros)]
 extern crate rustc_serialize;
 
 extern crate hyper;
 extern crate docopt;
-extern crate zmq;
 extern crate nanomsg;
 extern crate git2;
 extern crate serde;
@@ -17,15 +18,12 @@ extern crate nix;
 extern crate glob;
 
 pub mod cluster;
-pub mod agent;
 pub mod jobs;
 pub mod storage;
 mod logging;
 mod repl;
 mod jq;
-mod help;
 
-//use x::logging;
 use docopt::Docopt;
 
 
@@ -33,12 +31,14 @@ static USAGE: &'static str = "
 builder cli.
 
 Usage:
-  bldr agent [--port=<portnumber>] [<peers>...]
+  bldr agent [<peers>...]
   bldr repl
   bldr storage init
   bldr storage show
-  bldr storage show
-  bldr add job <json>
+  bldr jobs add <json>
+  bldr jobs list 
+  bldr jobs rm [<id>...]
+  bldr jobs show [<id...]
   bldr -h | --help
   
 Options: 
@@ -82,7 +82,14 @@ fn main() {
         //peers[0].as_ref(), args.iter().skip(1).collect::<Vec<_>>());
         
         info!("local: {}, peers: {:?}", args.get_str("<portnumber>"), args.get_vec("<peers>"));
-        agent::start(peers);
+        
+        //agent::Agent::start(peers.iter().map(|s| String::from_utf8_lossy(s.to_owned())).collect::<Vec<_>>());
+        //agent::Agent::start(peers.iter().map(|s| String::from_utf8_unchecked(s.to_owned())));
+        //agent::Agent::start(peers.iter().map(|s| String::from_str(s)).collect::<Vec<_>>());
+        //agent::Agent::start(peers.iter().map(|s| s.to_string()).collect::<Vec<_>>());
+        
+        //cluster::participate(peers[0].as_ref(), peers.iter().skip(1).collect::<Vec<_>>());
+        cluster::participate(peers[0].as_ref(), peers.iter().skip(1).map(|s| s.to_string()).collect::<Vec<_>>());
     }
     else if args.get_bool("repl") {
         repl::start();
@@ -96,17 +103,28 @@ fn main() {
         }
         
     }
-    else if args.get_bool("add") && args.get_bool("job") {
-        let storage = storage::bootstrap();
-        // got an add command, what kind of add is it?
-        // options discover add from json?
-        // or assume a subsequent command to clarify type
-        // right now assume sub-command for specific type of 'add'.
-        let json = args.get_str("<json>");
-        info!("json: {}", json);
-        match jobs::from_raw_json(&storage, json) {
-            Ok(_) => println!("got raw json ok."),
-            Err(e) => panic!("uh oh {}", e)
-        };
+    if args.get_bool("jobs") {
+        
+        if args.get_bool("add") {
+            let storage = storage::bootstrap();
+            // got an add command, what kind of add is it?
+            // options discover add from json?
+            // or assume a subsequent command to clarify type
+            // right now assume sub-command for specific type of 'add'.
+            let json = args.get_str("<json>");
+            info!("json: {}", json);
+            match jobs::from_raw_json(&storage, json) {
+                Ok(_) => println!("got raw json ok."),
+                Err(e) => panic!("error from_raw_json {}", e)
+            };
+        }
+        else if args.get_bool("list") {
+            let storage = storage::bootstrap();
+            // jobs::list(&storage, move |j| {
+            //     println!("job {}", j);
+            // });
+            
+            jobs::list();
+        }
     }
 }
