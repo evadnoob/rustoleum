@@ -19,7 +19,8 @@ pub fn from_raw_json(storage: &Storage, raw_json: &str) -> Result<(), &'static s
 }
 
 
-pub fn list() {
+pub fn list(storage: &Storage) {
+    storage.list();
 }
 
 //f: Fn<(), Output=()>

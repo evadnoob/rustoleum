@@ -124,7 +124,7 @@ fn main() {
             //     println!("job {}", j);
             // });
             
-            jobs::list();
+            jobs::list(&storage);
         }
     }
 }
