@@ -114,7 +114,10 @@ fn main() {
             let json = args.get_str("<json>");
             info!("json: {}", json);
             match jobs::from_raw_json(&storage, json) {
-                Ok(_) => println!("got raw json ok."),
+                Ok(job) => {
+                    info!("got raw json ok.");
+                        storage.save(job);
+                },
                 Err(e) => panic!("error from_raw_json {}", e)
             };
         }

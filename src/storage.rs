@@ -37,7 +37,7 @@ pub struct RepositoryDescriptor {
 pub struct Job {
     name: String,
     description: Option<String>,
-    repository: RepositoryDescriptor
+    repository: Option<RepositoryDescriptor>
 }
 
 #[derive(RustcEncodable, RustcDecodable, Debug, Clone)]
@@ -212,7 +212,7 @@ impl Storage {
             info!("On branch {}",
                      head.unwrap_or("Not currently on any branch"));
         } else {
-            info!(" {}", head.unwrap_or("HEAD (no branch)"));
+            info!("branch {}", head.unwrap_or("HEAD (no branch)"));
         }
         Ok(())
             
