@@ -1,11 +1,7 @@
-
-
-
 [package]
 name = "bldr"
 version = "0.1.0"
 authors = [ "David Boon <david.boon@gmail.com" ]
-
 
 description = "A distributed scheduling and system"
 readme = "README.md"
@@ -33,7 +29,7 @@ term = "0.2"
 syntex_syntax = "^0.7.0"
 serde = "0.4"
 #serde_macros = "0.4.1"
-
+yaml-rust = "0.2.2"
 
 [dependencies.readline]
 git = "https://github.com/evadnoob/rust-readline.git"

@@ -57,7 +57,6 @@ fn main() {
     let args = Docopt::new(USAGE)
         .and_then(|d| d.help(true).version(Some("0.0.1".to_string())).parse())
         .unwrap_or_else(|e| e.exit());
-    //let args: Args = Args::docopt().decode().unwrap_or_else(|e| e.exit());
     
     println!("args: {:?}", args); 
     println!("arg vector: {:?}", args.get_vec("<args>"));
@@ -76,7 +75,7 @@ fn main() {
         // args[0] program name
         // args[1] self 
         for x in 1..peers.len() {
-            println!("{} {}", x, peers[x]); // x: i32
+            info!("{} {}", x, peers[x]); // x: i32
         }
     
         //peers[0].as_ref(), args.iter().skip(1).collect::<Vec<_>>());
@@ -104,6 +103,14 @@ fn main() {
         
     }
     if args.get_bool("jobs") {
+
+        let peers = args.get_vec("<peers>");
+        for x in 1..peers.len() {
+            info!("{} {}", x, peers[x]); // x: i32
+        }
+        info!("local: {}, peers: {:?}", args.get_str("<portnumber>"), args.get_vec("<peers>"));
+        cluster::participate(peers[0].as_ref(), peers.iter().skip(1).map(|s| s.to_string()).collect::<Vec<_>>());
+
         
         if args.get_bool("add") {
             let storage = storage::bootstrap();
